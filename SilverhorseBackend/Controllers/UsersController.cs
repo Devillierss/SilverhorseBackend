@@ -13,23 +13,24 @@ namespace SilverhorseBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AlbumsController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IWebRepository _WebRepository;
         private readonly IOptions<WebRepositoryConfig> _config;
 
-        public AlbumsController(IWebRepository webRepository, IOptions<WebRepositoryConfig> config)
+
+        public UsersController(IWebRepository webRepository, IOptions<WebRepositoryConfig> config)
         {
             _WebRepository = webRepository;
             _config = config;
         }
 
-        // GET: api/<AlbumController>
         [HttpGet]
-        public async Task<IEnumerable<Album>> Get()
+        public async Task<IEnumerable<User>> Get()
         {
-            var posts = await _WebRepository.GetWebRequest<List<Album>>(_config.Value.BaseUri, "albums");
-            return posts;
+            var users = await _WebRepository.GetWebRequest<List<User>>(_config.Value.BaseUri, "users");
+
+            return users;
         }
     }
 }
