@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using SilverhorseBackend.Config;
 using SilverhorseDtos;
 using SilverhorseServiceHelpers.Interfaces;
+using Swashbuckle.Swagger.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,14 @@ namespace SilverhorseBackend.Controllers
 
         private readonly IWebRepository _WebRepository;
         private readonly IOptions<WebRepositoryConfig> _config;
+        private readonly ICheckWebRepositoryResponse _checkWebRepositoryResponse;
 
-        public PostsController(IWebRepository webRepository, IOptions<WebRepositoryConfig> config)
+
+        public PostsController(IWebRepository webRepository, IOptions<WebRepositoryConfig> config, ICheckWebRepositoryResponse checkWebRepositoryResponse)
         {
             _WebRepository = webRepository;
             _config = config;
+            _checkWebRepositoryResponse = checkWebRepositoryResponse;
         }
 
 
@@ -56,6 +60,7 @@ namespace SilverhorseBackend.Controllers
         [HttpPatch("{id}")]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation("Write your summary here")]
         public async Task<IActionResult> Update(int id, [FromBody] Post post)
         {
             var posts = await _WebRepository.PatchWebRequest<Post>(_config.Value.BaseUri, $"posts/{id}", post);
@@ -68,8 +73,7 @@ namespace SilverhorseBackend.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var delete = await _WebRepository.DeleteWebRequest(_config.Value.BaseUri, $"posts/{id}");
-
-            return Ok(delete);
+            return _checkWebRepositoryResponse.CheckWebResult(delete);
         }
     }
 }

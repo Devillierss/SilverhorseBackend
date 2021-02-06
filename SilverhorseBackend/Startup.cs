@@ -1,3 +1,4 @@
+using LoggerService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,12 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using NLog;
 using SilverhorseBackend.Config;
 using SilverhorseBackend.CustomAuthentication;
+using SilverhorseBackend.CustomErrorHandling;
 using SilverhorseServiceHelpers.Interfaces;
 using SilverhorseServiceHelpers.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,6 +26,7 @@ namespace SilverhorseBackend
     {
         public Startup(IConfiguration configuration)
         {
+            LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             Configuration = configuration;
         }
 
@@ -30,11 +35,13 @@ namespace SilverhorseBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<ILoggerManager, LoggerManager>();
 
             services.AddTransient<IWebRepository, WebRepository>();
             services.AddTransient<IClassSerializer, ClassSerializer>();
             services.AddTransient<IRandomListsItems, RandomListsItems>();
             services.AddTransient<ICollectionAggregator, CollectionAggregator>();
+            services.AddTransient<ICheckWebRepositoryResponse, CheckWebRepositoryResponse>();
 
             services.AddMvcCore(config =>
             {
@@ -96,6 +103,8 @@ namespace SilverhorseBackend
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.ConfigureCustomExceptionHandler();
 
             app.UseEndpoints(endpoints =>
             {
