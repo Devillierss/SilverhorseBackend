@@ -24,6 +24,9 @@ namespace SilverhorseBackend.Controllers
             _config = config;
         }
 
+        /// <summary>
+        /// Fetches a List of Album, user amd post items.
+        /// </summary>
         [HttpGet]
         public async Task<JsonPlaceHolderCollection> Get()
         {
