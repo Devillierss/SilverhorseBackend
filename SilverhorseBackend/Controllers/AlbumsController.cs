@@ -11,5 +11,12 @@ namespace SilverhorseBackend.Controllers
     [ApiController]
     public class AlbumsController : ControllerBase
     {
+
+        [HttpGet]
+        public  string Get()
+        {
+            return "Check Auth";
+        }
+
     }
 }

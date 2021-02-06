@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using SilverhorseBackend.Config;
+using SilverhorseBackend.CustomAuthentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,11 +29,27 @@ namespace SilverhorseBackend
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddMvcCore(config =>
+            {
+                config.Filters.Add(typeof(CustomAuthFilter));
+            });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "forbidScheme";
+                options.DefaultForbidScheme = "forbidScheme";
+                options.AddScheme<TokenAuthenticationHandler>("forbidScheme", "Handle Forbidden");
+            });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SilverhorseBackend", Version = "v1" });
             });
+
+            var webRepositorySettings = this.Configuration.GetSection("WebRepositoryConfig");
+
+            services.Configure<WebRepositoryConfig>(webRepositorySettings);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
